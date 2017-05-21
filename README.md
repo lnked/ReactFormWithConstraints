@@ -2,7 +2,12 @@
 
 Simple form validation for React in ~300 lines of code
 
-## What is HTML5 form validation?
+[![Build Status](https://travis-ci.org/tkrotoff/ReactFormWithConstraints.svg?branch=master)](https://travis-ci.org/tkrotoff/ReactFormWithConstraints)
+
+- Installation: `npm install react-form-with-constraints`
+- CDN: https://unpkg.com/react-form-with-constraints/dist/react-form-with-constraints.js
+
+## Introduction: what is HTML5 form validation?
 
 ```HTML
 <form>
@@ -18,9 +23,32 @@ The `required` HTML5 attribute specifies that the user must fill in a value. Oth
 
 [`type="email"`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/email) checks that the entered text looks like an email address. Other available input types: `checkbox`, `date`, `number`, `password`, `tel`, `text`, `url`... see [MDN documentation - Form input types](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#Form_<input>_types).
 
+## What ReactFormWithConstraints brings
+
+- Control HTML5 error messages: `<FieldFeedback when="valueMissing">My custom error message</FieldFeedback>`
+- Custom constraints beyond HTML5: `<FieldFeedback when={value => ...}>`
+- Warnings: `<FieldFeedback ... warning>`
+- Multiple feedbacks: `<FieldFeedbacks ... show="all">`
+
+```JSX
+<input type="password" name="password"
+       value={this.state.password} onChange={this.handleChange}
+       pattern=".{5,}" required />
+<FieldFeedbacks for="password" show="all">
+  <FieldFeedback when="valueMissing" />
+  <FieldFeedback when="patternMismatch">Should be at least 5 characters long</FieldFeedback>
+  <FieldFeedback when={value => !/\d/.test(value)} warning>Should contain some numbers</FieldFeedback>
+  <FieldFeedback when={value => !/[a-z]/.test(value)} warning>Should contain some small letters</FieldFeedback>
+  <FieldFeedback when={value => !/[A-Z]/.test(value)} warning>Should contain some capital letters</FieldFeedback>
+  <FieldFeedback when={value => !/\W/.test(value)} warning>Should contain some special characters</FieldFeedback>
+</FieldFeedbacks>
+```
+
 ## ReactFormWithConstraints demo
 
-https://codepen.io/tkrotoff/project/editor/AnnBvo/
+- CodePen demo: https://codepen.io/tkrotoff/pen/BRGdqL
+- CodePen Bootstrap demo: https://codepen.io/tkrotoff/pen/oWQeQR
+- CodePen Template: https://codepen.io/tkrotoff/pen/VbVzgZ
 
 ```JSX
 import * as React from 'react';
@@ -74,8 +102,8 @@ class MyForm extends FormWithConstraints {
                  value={this.state.password} onChange={this.handleChange}
                  pattern=".{5,}" required />
           <FieldFeedbacks for="password" show="all">
-            <FieldFeedback when="patternMismatch">Should be at least 5 characters long</FieldFeedback>
             <FieldFeedback when="valueMissing" />
+            <FieldFeedback when="patternMismatch">Should be at least 5 characters long</FieldFeedback>
             <FieldFeedback when={value => !/\d/.test(value)} warning>Should contain some numbers</FieldFeedback>
             <FieldFeedback when={value => !/[a-z]/.test(value)} warning>Should contain some small letters</FieldFeedback>
             <FieldFeedback when={value => !/[A-Z]/.test(value)} warning>Should contain some capital letters</FieldFeedback>
@@ -107,17 +135,19 @@ ReactDOM.render(<MyForm />, document.getElementById('app'));
 
 ## API
 
-The API reads like this: "for field when violation display feedback", example:
+The API reads like this: "for field when constraint violation display feedback", example:
 ```JSX
 <FieldFeedbacks for="password">
-  <FieldFeedback when="patternMismatch">Should be at least 5 characters long</FieldFeedback>
   <FieldFeedback when="valueMissing" />
+  <FieldFeedback when="patternMismatch">Should be at least 5 characters long</FieldFeedback>
 </FieldFeedbacks>
 ```
 ```
-for field "password" when violation "patternMismatch" display "Should be at least 5 characters long"
-                     when violation "valueMissing"    display "the default HTML5 feedback"
+for field "password" when constraint violation "valueMissing"    display "the default HTML5 feedback"
+                     when constraint violation "patternMismatch" display "Should be at least 5 characters long"
 ```
+
+The API is inspired by [AngularJS ngMessages](https://docs.angularjs.org/api/ngMessages#usage).
 
 - `FieldFeedbacks`
   - `for: string` => refer to a `name` attribute, e.g `<input name="password">`
@@ -172,8 +202,8 @@ You can use HTML5 attributes like `type="email"`, `required`, `pattern`..., in t
 </form>
 ```
 
-In this case you will have to manage translations yourself.
+In the last case you will have to manage translations yourself.
 
-## Note
+## Notes
 
-I do not like the user to have to inherit from `FormWithConstraints`, if you find a better solution tell me.
+I do not like to inherit from `FormWithConstraints`, if you find a better solution tell me.
